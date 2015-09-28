@@ -1,4 +1,4 @@
-# remote-view-plugin
+# remote-jobs-view-plugin
 ## A [Jenkins CI](https://jenkins-ci.org/) plugin to view build jobs on remote [Jenkins CI](https://jenkins-ci.org/) servers
 
 ### What does this plugin provide?
