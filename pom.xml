@@ -17,7 +17,7 @@
 
   <name>remote-jobs-view-plugin</name>
   <description>Display jobs from remote (master) Jenkins CI servers</description>
-  <url>https://github.com/jenkinsci/remote-jobs-view-plugin/</url>
+  <url>https://wiki.jenkins-ci.org/display/JENKINS/Remote+Jobs+View+Plugin</url>
   <licenses>
     <license>
       <name>Apache License 2.0</name>
