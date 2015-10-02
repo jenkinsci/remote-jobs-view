@@ -11,13 +11,13 @@
     <relativePath/>
   </parent>
   <groupId>com.sap.jenkinsci</groupId>
-  <artifactId>remote-view-plugin</artifactId>
+  <artifactId>remote-jobs-view-plugin</artifactId>
   <version>0.0.1</version>
   <packaging>hpi</packaging>
 
-  <name>remote-view-plugin</name>
+  <name>remote-jobs-view-plugin</name>
   <description>Display jobs from remote (master) Jenkins CI servers</description>
-  <url>https://github.com/SAP/remote-view-plugin</url>
+  <url>https://github.com/jenkinsci/remote-jobs-view-plugin/</url>
   <licenses>
     <license>
       <name>Apache License 2.0</name>
@@ -30,14 +30,12 @@
       <name>Dirk Lehmann</name>
       <email>dirk.lehmann@sap.com</email>
     </developer>
-  </developers>
-  <!-- Assuming you want to host on @jenkinsci:
+  </developers>  
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
     <url>http://github.com/jenkinsci/${project.artifactId}-plugin</url>
   </scm>
-   -->
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
