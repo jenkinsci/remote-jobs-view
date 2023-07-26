@@ -2,17 +2,14 @@ package com.sap.jenkinsci.plugin.remote_view;
 
 import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
-import hudson.model.Describable;
-import hudson.model.ItemGroup;
-import hudson.model.TopLevelItem;
+import hudson.model.*;
 import hudson.util.EnumConverter;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,8 +18,13 @@ import jenkins.model.Jenkins;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
+
+import javax.servlet.ServletException;
 
 /**
  * Created by @NutellaMitBrezel on 09.06.2015.
@@ -33,6 +35,10 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
 
   private String name = null;
   private String remoteURL = null;
+
+  private String UserName = null;
+
+  private String Password = null;
   private List<RemoteJob> remoteJobs = null;
   private Map<String, Wrapper> displayJobs = new HashMap<String, Wrapper>();
 
@@ -40,11 +46,13 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
 
   private int counter = 0;
 
-  public SectionedViewSection(String name, Width width, Positioning alignment, String remoteURL) {
+  public SectionedViewSection(String name, String UserName, String Password, Width width, Positioning alignment, String remoteURL) {
     this.setName(name);
     this.setWidth(width);
     this.setAlignment(alignment);
     this.setRemoteURL(remoteURL);
+    this.setUserName(UserName);
+    this.setPassword(Password);
 
     determineCss();
   }
@@ -86,6 +94,20 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
 
   public void setName(String name) {
     this.name = name;
+  }
+  public String getUserName() {
+    return UserName;
+  }
+  public void setUserName(String UserName) {
+    this.UserName = UserName;
+  }
+
+  public String getPassword() {
+    return Password;
+  }
+
+  public void setPassword(String Password) {
+    this.Password = Password;
   }
 
   public String getRemoteURL() {
@@ -172,7 +194,13 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
     String xmlApiUrl = remoteURL + "api/xml";
     try {
       URL url = new URL(xmlApiUrl);
-      Document dom = new SAXReader().read(url);
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      // Set the username and password for basic authentication
+      String authString = UserName + ":" + Password;
+      String encodedAuthString = Base64.getEncoder().encodeToString(authString.getBytes());
+      String authHeader = "Basic " + encodedAuthString;
+      connection.setRequestProperty("Authorization", authHeader);
+      Document dom = new SAXReader().read(connection.getInputStream());
       // scan through the job list and print its status
       remoteJobs = new ArrayList<RemoteJob>();
       for (Element job : (List<Element>) dom.getRootElement().elements("job")) {
@@ -207,9 +235,15 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
   public List<RemoteJob> getAllJobs() {
     String xmlApiUrl = remoteURL + "api/xml";
     try {
-
       URL url = new URL(xmlApiUrl);
-      Document dom = new SAXReader().read(url);
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      // Set the username and password for basic authentication
+      String authString = UserName + ":" + Password;
+      String encodedAuthString = Base64.getEncoder().encodeToString(authString.getBytes());
+      String authHeader = "Basic " + encodedAuthString;
+      connection.setRequestProperty("Authorization", authHeader);
+
+      Document dom = new SAXReader().read(connection.getInputStream());
       // scan through the job list
       remoteJobs = new ArrayList<RemoteJob>();
       for (Element job : (List<Element>) dom.getRootElement().elements("job")) {
@@ -222,15 +256,22 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
     }
     return remoteJobs;
   }
-
   @JavaScriptMethod
-  public List<RemoteJob> getJobsJS(String l_remoteURL) {
+  public List<RemoteJob> getJobsJS(String l_remoteURL, String username, String password) {
     List<RemoteJob> l_remoteJobs = new ArrayList<RemoteJob>();
     URL url = null;
     try {
       url = new URL(l_remoteURL);
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+      // Set the username and password for basic authentication
+      String authString = username + ":" + password;
+      String encodedAuthString = Base64.getEncoder().encodeToString(authString.getBytes());
+      String authHeader = "Basic " + encodedAuthString;
+      connection.setRequestProperty("Authorization", authHeader);
+
       SAXReader reader = new SAXReader();
-      Document dom = reader.read(url);
+      Document dom = reader.read(connection.getInputStream());
       // scan through the job list and print its status
       for (Element job : (List<Element>) dom.getRootElement().elements("job")) {
         RemoteJob r = new RemoteJob(job.elementText("name"), job.elementText("color"), job.elementText("url"));
@@ -345,4 +386,30 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
     }
   }
 
+  public void doSearchSubmit(StaplerRequest request, StaplerResponse response, @QueryParameter("searchTerm") String searchTerm) throws IOException {
+    List<RemoteJob> matchingJobs = displayMatchingJobs(searchTerm);
+    request.setAttribute("matchingJobs", matchingJobs);
+    try {
+      System.out.println("jobs to display out changes");
+      response.sendRedirect(".");
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public List<RemoteJob> displayMatchingJobs(String searchTerm) {
+    System.out.println("display remote jobs");
+    List<RemoteJob> matchingJobs = new ArrayList<>();
+    RemoteJobsView remoteJobsView = new RemoteJobsView(name);
+    Iterable<SectionedViewSection> sectionedViewSections = remoteJobsView.getSections();
+    for(SectionedViewSection sectionedViewSection : sectionedViewSections){
+      List<RemoteJob> Jobs = sectionedViewSection.getJobs();
+      for (RemoteJob remoteJob : remoteJobs) {
+        if (remoteJob.getName().contains(searchTerm)) {
+          matchingJobs.add(remoteJob);
+        }
+      }
+    }
+    return matchingJobs;
+  }
 }
