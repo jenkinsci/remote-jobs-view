@@ -30,7 +30,6 @@ import org.kohsuke.stapler.StaplerResponse;
  * Created by @NutellaMitBrezel on 09.06.2015.
  */
 public class RemoteJobsView extends View {
-
   private final static Logger logger = Logger.getLogger(RemoteJobsView.class.getName());
 
   private DescribableList<SectionedViewSection, Descriptor<SectionedViewSection>> sections;
