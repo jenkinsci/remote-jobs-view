@@ -23,6 +23,11 @@ import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 
 import javax.servlet.ServletException;
 
@@ -189,45 +194,52 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
   }
 
   // Invoked in main.jelly to display all the jobs
-  public List<RemoteJob> getJobs() {
-
+  public List<RemoteJob> getJobs() throws Exception {
     String xmlApiUrl = remoteURL + "api/xml";
-    try {
-      URL url = new URL(xmlApiUrl);
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      // Set the username and password for basic authentication
-      String authString = UserName + ":" + Password;
-      String encodedAuthString = Base64.getEncoder().encodeToString(authString.getBytes());
-      String authHeader = "Basic " + encodedAuthString;
-      connection.setRequestProperty("Authorization", authHeader);
-      Document dom = new SAXReader().read(connection.getInputStream());
-      // scan through the job list and print its status
-      remoteJobs = new ArrayList<RemoteJob>();
-      for (Element job : (List<Element>) dom.getRootElement().elements("job")) {
-        RemoteJob r = new RemoteJob(job.elementText("name"), job.elementText("color"), job.elementText("url"));
-        String concat = String.valueOf(counter).concat(r.getName());
+    URL url = new URL(xmlApiUrl);
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-        /*
-         * Filter for the status of the jobs We need a filterEnabled variable here because our normal filter does not
-         * cover all possible status and hence it would not display all jobs when completely enabled
-         */
-        if (filterEnabled) {
-          if (r.getStatus().equals("blue") && blue || r.getStatus().equals("yellow") && yellow
-              || r.getStatus().equals("red") && red || r.getStatus().equals("aborted") && aborted) {
+    // Set the username and password for basic authentication
+    String authString = UserName + ":" + Password;
+    String encodedAuthString = Base64.getEncoder().encodeToString(authString.getBytes(StandardCharsets.UTF_8));
+    String authHeader = "Basic " + encodedAuthString;
+    connection.setRequestProperty("Authorization", authHeader);
 
-            if (displayJobs.get(concat).getStatus()) {
-              remoteJobs.add(r);
-            }
-          }
-        } else {
+    // Use a secure XML parser to prevent XXE vulnerability
+    SAXReader reader = new SAXReader();
+    reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+    // Parse the XML data
+    InputStream inputStream = connection.getInputStream();
+    Document dom = reader.read(inputStream);
+    inputStream.close();
+
+    // Continue with your XML parsing logic...
+    remoteJobs = new ArrayList<RemoteJob>();
+    for (Element job : (List<Element>) dom.getRootElement().elements("job")) {
+      RemoteJob r = new RemoteJob(job.elementText("name"), job.elementText("color"), job.elementText("url"));
+      String concat = String.valueOf(counter).concat(r.getName());
+
+      /*
+       * Filter for the status of the jobs We need a filterEnabled variable here because our normal filter does not
+       * cover all possible status and hence it would not display all jobs when completely enabled
+       */
+      if (filterEnabled) {
+        if (r.getStatus().equals("blue") && blue || r.getStatus().equals("yellow") && yellow
+                || r.getStatus().equals("red") && red || r.getStatus().equals("aborted") && aborted) {
+
           if (displayJobs.get(concat).getStatus()) {
             remoteJobs.add(r);
           }
         }
+      } else {
+        if (displayJobs.get(concat).getStatus()) {
+          remoteJobs.add(r);
+        }
       }
-    } catch (Exception ex) {
-      SectionedViewSection.logger.log(Level.SEVERE,
-          "XML from remote API " + xmlApiUrl + " looks strange.\n" + ex.getMessage());
     }
     return remoteJobs;
   }
@@ -237,14 +249,26 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
     try {
       URL url = new URL(xmlApiUrl);
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
       // Set the username and password for basic authentication
       String authString = UserName + ":" + Password;
-      String encodedAuthString = Base64.getEncoder().encodeToString(authString.getBytes());
+      String encodedAuthString = Base64.getEncoder().encodeToString(authString.getBytes(StandardCharsets.UTF_8));
       String authHeader = "Basic " + encodedAuthString;
       connection.setRequestProperty("Authorization", authHeader);
 
-      Document dom = new SAXReader().read(connection.getInputStream());
-      // scan through the job list
+      // Use a secure XML parser to prevent XXE vulnerability
+      SAXReader reader = new SAXReader();
+      reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+      // Parse the XML data
+      InputStream inputStream = connection.getInputStream();
+      Document dom = reader.read(inputStream);
+      inputStream.close();
+
+      // Continue with your XML parsing logic...
       remoteJobs = new ArrayList<RemoteJob>();
       for (Element job : (List<Element>) dom.getRootElement().elements("job")) {
         RemoteJob r = new RemoteJob(job.elementText("name"), job.elementText("color"), job.elementText("url"));
@@ -252,7 +276,7 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
       }
     } catch (Exception ex) {
       SectionedViewSection.logger.log(Level.SEVERE,
-          "XML from remote API " + xmlApiUrl + " looks strange.\n" + ex.getMessage());
+              "XML from remote API " + xmlApiUrl + " looks strange.\n" + ex.getMessage());
     }
     return remoteJobs;
   }
@@ -266,11 +290,17 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
 
       // Set the username and password for basic authentication
       String authString = username + ":" + password;
-      String encodedAuthString = Base64.getEncoder().encodeToString(authString.getBytes());
+      String encodedAuthString = Base64.getEncoder().encodeToString(authString.getBytes(StandardCharsets.UTF_8));
       String authHeader = "Basic " + encodedAuthString;
       connection.setRequestProperty("Authorization", authHeader);
 
+      // Use a secure XML parser to prevent XXE vulnerability
       SAXReader reader = new SAXReader();
+      reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
       Document dom = reader.read(connection.getInputStream());
       // scan through the job list and print its status
       for (Element job : (List<Element>) dom.getRootElement().elements("job")) {
@@ -279,7 +309,7 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
       }
     } catch (Exception ex) {
       SectionedViewSection.logger.log(Level.SEVERE,
-          "XML from remote API " + url + " looks strange.\n" + ex.getMessage());
+              "XML from remote API " + url + " looks strange.\n" + ex.getMessage());
     }
     return l_remoteJobs;
   }
@@ -386,7 +416,7 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
     }
   }
 
-  public void doSearchSubmit(StaplerRequest request, StaplerResponse response, @QueryParameter("searchTerm") String searchTerm) throws IOException {
+  public void doSearchSubmit(StaplerRequest request, StaplerResponse response, @QueryParameter("searchTerm") String searchTerm) throws Exception {
     List<RemoteJob> matchingJobs = displayMatchingJobs(searchTerm);
     request.setAttribute("matchingJobs", matchingJobs);
     try {
@@ -397,7 +427,7 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
     }
   }
 
-  public List<RemoteJob> displayMatchingJobs(String searchTerm) {
+  public List<RemoteJob> displayMatchingJobs(String searchTerm) throws Exception {
     System.out.println("display remote jobs");
     List<RemoteJob> matchingJobs = new ArrayList<>();
     RemoteJobsView remoteJobsView = new RemoteJobsView(name);
