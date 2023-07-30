@@ -1,9 +1,6 @@
 # remote-jobs-view-plugin
 ## A [Jenkins CI](https://jenkins-ci.org/) plugin to view build jobs on remote [Jenkins CI](https://jenkins-ci.org/) servers
 
-### Adopt this plugin
-This plugin in no longer activly maintained. If you want you can [adopt it](https://www.jenkins.io/doc/developer/plugin-governance/adopt-a-plugin/). 
-
 ### What does this plugin provide?
 This [Jenkins CI](https://jenkins-ci.org/) plugin provides a view that will show you the build status of jobs executed on remote (master) [Jenkins CI](https://jenkins-ci.org/) servers. You can specify several remote [Jenkins CI](https://jenkins-ci.org/) servers to be listed in one view. Also you can select which (remote) jobs should be listed.
 
