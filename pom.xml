@@ -11,7 +11,7 @@
   </parent>
   <groupId>com.sap.jenkinsci</groupId>
   <artifactId>remote-jobs-view-plugin</artifactId>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
 
   <name>remote-jobs-view-plugin</name>
