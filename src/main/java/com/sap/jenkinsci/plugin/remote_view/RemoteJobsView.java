@@ -77,14 +77,12 @@ public class RemoteJobsView extends View {
     int i = 0;
     for (SectionedViewSection s : sections) {
 
-      try {
+      if (val[i] != null && val1[i] != null && val2[i] != null) {
         s.setRemoteURL(val[i]);
         s.setUserName(val1[i]);
         s.setPassword(val2[i]);
         s.setCounter(i);
         i++;
-      } catch (NullPointerException npe) {
-
       }
 
       // hasParameter() for Boolean
@@ -95,7 +93,7 @@ public class RemoteJobsView extends View {
       s.setAborted(req.hasParameter(String.valueOf(s.getCounter()).concat("aborted")));
 
       // Save checkboxes
-      List<RemoteJob> remoteJobs = new ArrayList<RemoteJob>();
+      List<RemoteJob> remoteJobs;
       remoteJobs = s.getAllJobs();
       s.setDisplayJobs(new HashMap<String, Wrapper>());
       s.setAvailable(true);
@@ -104,12 +102,12 @@ public class RemoteJobsView extends View {
       if (remoteJobs != null) {
         for (RemoteJob rj : remoteJobs) {
           try {
-            String concat = String.valueOf(s.getCounter()).concat(rj.getName());
+            String concat = String.valueOf(s.getCounter()) + (rj.getName() != null ? rj.getName() : "");
             boolean checked = req.hasParameter(concat);
             Wrapper wr = new Wrapper(rj.getName(), true);
             s.getDisplayJobs().put(concat, wr);
-          } catch (NullPointerException npe) {
-            RemoteJobsView.logger.log(Level.SEVERE, "Whoops! Found NULL remote job!" + npe.getMessage());
+          } catch (Exception e) {
+            RemoteJobsView.logger.log(Level.SEVERE, "Caught exception while processing remote job.", e);
           }
         }
       }
