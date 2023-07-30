@@ -30,7 +30,6 @@ import org.kohsuke.stapler.StaplerResponse;
  * Created by @NutellaMitBrezel on 09.06.2015.
  */
 public class RemoteJobsView extends View {
-
   private final static Logger logger = Logger.getLogger(RemoteJobsView.class.getName());
 
   private DescribableList<SectionedViewSection, Descriptor<SectionedViewSection>> sections;
@@ -72,12 +71,16 @@ public class RemoteJobsView extends View {
     }
 
     String[] val = req.getParameterValues("remoteURL");
+    String[] val1 = req.getParameterValues("UserName");
+    String[] val2 = req.getParameterValues("Password");
 
     int i = 0;
     for (SectionedViewSection s : sections) {
 
       try {
         s.setRemoteURL(val[i]);
+        s.setUserName(val1[i]);
+        s.setPassword(val2[i]);
         s.setCounter(i);
         i++;
       } catch (NullPointerException npe) {
@@ -103,7 +106,7 @@ public class RemoteJobsView extends View {
           try {
             String concat = String.valueOf(s.getCounter()).concat(rj.getName());
             boolean checked = req.hasParameter(concat);
-            Wrapper wr = new Wrapper(rj.getName(), checked);
+            Wrapper wr = new Wrapper(rj.getName(), true);
             s.getDisplayJobs().put(concat, wr);
           } catch (NullPointerException npe) {
             RemoteJobsView.logger.log(Level.SEVERE, "Whoops! Found NULL remote job!" + npe.getMessage());

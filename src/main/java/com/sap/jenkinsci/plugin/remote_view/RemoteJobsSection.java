@@ -22,8 +22,8 @@ public class RemoteJobsSection extends SectionedViewSection{
 
 
     @DataBoundConstructor
-    public RemoteJobsSection(String name, Width width, Positioning alignment, String remoteURL) {
-        super(name, width, alignment, remoteURL);
+    public RemoteJobsSection(String name, String UserName, String Password, Width width, Positioning alignment, String remoteURL) {
+        super(name, UserName, Password, width, alignment, remoteURL);
     }
 
     public static int var = 0;

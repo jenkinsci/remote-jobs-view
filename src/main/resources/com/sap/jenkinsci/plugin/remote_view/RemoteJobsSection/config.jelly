@@ -5,8 +5,18 @@
     </f:entry>
 
     <!-- URL-->
-    <f:entry title="${%Url}" field="remoteURL" help="/plugin/remote-view-plugin/help-sectionConfigURL.html">
-        <f:textbox name="remoteURL" id="textboxURL"/>
+    <f:entry title="remoteURL" field="remoteURL">
+        <f:textbox />
+    </f:entry>
+
+    <!-- UserName-->
+    <f:entry title="UserName" field="UserName">
+        <f:textbox />
+    </f:entry>
+
+    <!-- Password-->
+    <f:entry title="Password" field="Password">
+        <f:textbox />
     </f:entry>
 
     <f:advanced>
