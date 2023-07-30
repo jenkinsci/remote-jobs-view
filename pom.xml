@@ -11,7 +11,7 @@
   </parent>
   <groupId>com.sap.jenkinsci</groupId>
   <artifactId>remote-jobs-view-plugin</artifactId>
-  <version>${revision}${changelist}</version>
+  <version>${changelist}</version>
   <packaging>hpi</packaging>
 
   <name>remote-jobs-view-plugin</name>
@@ -53,6 +53,7 @@
     </pluginRepository>
   </pluginRepositories>
   <properties>
+    <changelist>999999-SNAPSHOT</changelist>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
