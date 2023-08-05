@@ -10,11 +10,11 @@
     <relativePath />
   </parent>
   <groupId>com.sap.jenkinsci</groupId>
-  <artifactId>remote-jobs-view-plugin</artifactId>
+  <artifactId>remote-jobs-view</artifactId>
   <version>${changelist}</version>
   <packaging>hpi</packaging>
 
-  <name>remote-jobs-view-plugin</name>
+  <name>remote-jobs-view</name>
   <description>Display jobs from remote (master) Jenkins CI servers</description>
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Remote+Jobs+View+Plugin</url>
   <licenses>
@@ -25,9 +25,9 @@
   </licenses>
   <developers>
     <developer>
-      <id>doergn</id>
-      <name>Dirk Lehmann</name>
-      <email>dirk.lehmann@sap.com</email>
+      <id>swamy-m-s</id>
+      <name>Swamy M S</name>
+      <email>msswamy2000@gmail.com</email>
     </developer>
   </developers>
   <scm>
