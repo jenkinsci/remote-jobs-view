@@ -9,7 +9,6 @@
     <version>4.52</version>
     <relativePath />
   </parent>
-  <groupId>io.jenkins.plugin</groupId>
   <artifactId>remote-jobs-view</artifactId>
   <version>${changelist}</version>
   <packaging>hpi</packaging>
