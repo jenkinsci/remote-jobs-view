@@ -3,13 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.jenkins-ci.plugins</groupId>
+    <groupId>io.jenkins.plugin</groupId>
     <artifactId>plugin</artifactId>
     <!-- Baseline Jenkins version you use to build and test the plugin. Users must have this version or newer to run. -->
     <version>4.52</version>
     <relativePath />
   </parent>
-  <groupId>com.sap.jenkinsci</groupId>
+  <groupId>io.jenkins.plugin</groupId>
   <artifactId>remote-jobs-view</artifactId>
   <version>${changelist}</version>
   <packaging>hpi</packaging>
