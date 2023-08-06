@@ -3,6 +3,7 @@ package com.sap.jenkinsci.plugin.remote_view;
 import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.*;
+import hudson.security.Permission;
 import hudson.util.EnumConverter;
 
 import java.io.IOException;
@@ -23,6 +24,8 @@ import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
+import org.kohsuke.stapler.interceptor.RequirePOST;
+
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -30,6 +33,8 @@ import java.util.Base64;
 import java.util.List;
 
 import javax.servlet.ServletException;
+
+import static hudson.Functions.checkPermission;
 
 /**
  * Created by @NutellaMitBrezel on 09.06.2015.
@@ -415,8 +420,9 @@ public abstract class SectionedViewSection implements ExtensionPoint, Describabl
       Stapler.CONVERT_UTILS.register(new EnumConverter(), Width.class);
     }
   }
-
+  @RequirePOST
   public void doSearchSubmit(StaplerRequest request, StaplerResponse response, @QueryParameter("searchTerm") String searchTerm) throws Exception {
+    checkPermission(Permission.READ);
     List<RemoteJob> matchingJobs = displayMatchingJobs(searchTerm);
     request.setAttribute("matchingJobs", matchingJobs);
     try {

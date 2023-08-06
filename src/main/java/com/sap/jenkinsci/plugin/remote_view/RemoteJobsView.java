@@ -11,6 +11,7 @@ import hudson.model.ViewDescriptor;
 import hudson.util.DescribableList;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
  * Created by @NutellaMitBrezel on 09.06.2015.
@@ -131,9 +133,15 @@ public class RemoteJobsView extends View {
   }
 
   @Override
+  @RequirePOST
   public Item doCreateItem(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-    return Jenkins.getInstance().doCreateItem(req, rsp);
+    if (!Jenkins.get().hasPermission(Item.CREATE)) {
+      throw new AccessDeniedException("You do not have permission to create items.");
+    }
+    return Jenkins.get().doCreateItem(req, rsp);
   }
+
+
 
   @Override
   public boolean contains(TopLevelItem item) {
