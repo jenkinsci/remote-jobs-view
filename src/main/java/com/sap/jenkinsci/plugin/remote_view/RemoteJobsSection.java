@@ -42,11 +42,11 @@ public class RemoteJobsSection extends SectionedViewSection{
         }
 
         @Override
-        @RequirePOST
         public String getDisplayName() {
             return "Remote Jobs Section";
         }
 
+        @RequirePOST
         public FormValidation doCheckRemoteURL(@QueryParameter String value) throws IOException, ServletException {
             if (!Jenkins.get().hasPermission(Permission.CONFIGURE)) {
                 return FormValidation.error("You don't have permission to perform this operation.");
